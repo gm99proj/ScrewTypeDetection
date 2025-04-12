@@ -1,23 +1,35 @@
 import cv2
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import os
+import numpy as np
 
 # Global variables
 capturing = False
 capture_count = 0
 save_folder = "captured_raw_photos"
 
+# Screw types
+screw_types = {
+    "1": "Socket head cap screw",
+    "2": "Flat head socket screw",
+    "3": "Wood screw",
+    "4": "Sheet metal screw"
+}
+
+# Background types
+background_types = {
+    "b": "Black",
+    "w": "White"
+}
+
 # Create folder if it doesn't exist
 if not os.path.exists(save_folder):
     os.makedirs(save_folder)
 
-# Function to start the webcam capture and take multiple pictures
 def start_capture():
     global capturing, capture_count
     capturing = True
-
-    # Start the webcam
     cap = cv2.VideoCapture(0)
 
     if not cap.isOpened():
@@ -26,29 +38,47 @@ def start_capture():
 
     while capturing:
         ret, frame = cap.read()
-        if ret:
-            # Display the frame in a window
-            cv2.imshow("Webcam", frame)
+        if not ret:
+            print("Failed to capture image")
+            break
 
-            # Check for key press to capture a photo (press 'c' to capture photo)
-            key = cv2.waitKey(1) & 0xFF
+        # Display the original frame
+        cv2.imshow("Webcam (Original)", frame)
 
-            if key == ord('c'):  # Press 'c' to capture an image
-                capture_count += 1
-                image_filename = os.path.join(save_folder, f"captured_image_{capture_count}.jpg")
-                cv2.imwrite(image_filename, frame)
-                print(f"Captured: {image_filename}")
-                messagebox.showinfo("Captured", f"Image {capture_count} saved as {image_filename}")
+        # Check for key press
+        key = cv2.waitKey(1) & 0xFF
         
-            # Check for key press to stop (press 'e' to end capture)
-            if key == ord('e'):  # Press 'e' to stop capture
-                capturing = False
+        if key == ord('c'):  # Press 'c' to capture an image
+            capture_count += 1
+            background_choice = simpledialog.askstring("Background Type", "Choose background type:\n'b' for Black\n'w' for White")
+            if background_choice not in background_types:
+                print("Invalid background choice, image not saved.")
+                continue
+            
+            screw_choice = simpledialog.askstring("Screw Type", "Choose screw type:\n1: Socket head cap screw\n2: Flat head socket screw\n3: Wood screw\n4: Sheet metal screw")
+            
+            if screw_choice in screw_types:
+                background_folder = os.path.join(save_folder, background_types[background_choice])
+                if not os.path.exists(background_folder):
+                    os.makedirs(background_folder)
+                
+                screw_type = screw_types[screw_choice]
+                screw_folder = os.path.join(background_folder, screw_type)
+                if not os.path.exists(screw_folder):
+                    os.makedirs(screw_folder)
+                
+                filename = os.path.join(screw_folder, f"{screw_type}_image_{capture_count}.jpg")
+                cv2.imwrite(filename, frame)
+                print(f"Captured: {filename}")
+            else:
+                print("Invalid screw type choice, image not saved.")
+        
+        elif key == ord('e'):  # Press 'e' to stop capture
+            capturing = False
 
-    # Release the webcam and close the window
     cap.release()
     cv2.destroyAllWindows()
 
-# Function to handle keypress events
 def on_keypress(event):
     if event.char == 's':  # Press 's' to start capture
         start_capture()
