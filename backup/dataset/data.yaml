@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 4
+names: ['FlatHeadSocketScrew', 'SheetMetalScrew', 'SocketHeadCapScrew', 'WoodScrew']
+
+roboflow:
+  workspace: screwtypedetection
+  project: types_of_screws
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/screwtypedetection/types_of_screws/dataset/1

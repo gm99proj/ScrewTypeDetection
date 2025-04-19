@@ -1,6 +1,0 @@
-train: ../YoloV5_pytorch/train/images
-val: ../YoloV5_pytorch/valid/images
-test: ../YoloV5_pytorch/test/images
-
-nc: 4
-names: ['Flat head socket screw', 'Sheet metal screw', 'Socket head cap screw', 'Wood screw']
